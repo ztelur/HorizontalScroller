@@ -11,11 +11,41 @@
     <com.carpediem.randy.lib.HorizontalScroller
         android:layout_width="match_parent"
         android:id="@+id/scroller"
+        android:background="#00ff00"
         android:layout_height="200dp"/>
+
+    <ScrollView
+        android:layout_below="@id/scroller"
+        android:layout_width="match_parent"
+        android:layout_height="200dp">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <View
+            android:layout_width="match_parent"
+            android:background="#ff00ff"
+            android:layout_height="100dp"/>
+        <View
+            android:layout_width="match_parent"
+            android:background="#00ffff"
+            android:layout_height="100dp"/>
+        <View
+            android:layout_width="match_parent"
+            android:background="#ff00ff"
+            android:layout_height="100dp"/>
+        <View
+            android:layout_width="match_parent"
+            android:background="#00ffff"
+            android:layout_height="100dp"/>
+        </LinearLayout>
+
+    </ScrollView>
     <Button
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:id="@+id/button"
+        android:layout_alignParentBottom="true"
         android:text="点我"
         />
 </RelativeLayout>
