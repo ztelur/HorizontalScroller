@@ -29,8 +29,9 @@ public class HorizontalScroller extends LinearLayout {
     private int mActivePointerId = INVALID_ID;
 
     private float mLastTouchX = 0;
-    private int mMinVelocity = MIN_MOVE_VELOCITY;
 
+    private int mScrollX;
+    private int mScrollY;
     private int mMinimumVeloctiy;
     private int mMaximumVeloctiy;
 
@@ -194,7 +195,7 @@ public class HorizontalScroller extends LinearLayout {
                 mIsBeingDragged = false;
                 mActivePointerId = INVALID_ID;
                 recycleVelocityTracker();
-                if (mScroller.springBack(getScrollX(),getScrollY(),0,getScrollRangeX(),0,0)) {
+                if (mScroller.springBack(mScrollX,mScrollY,0,getScrollRangeX(),0,0)) {
 //                    postInvalidateOnAnimation();
                 }
                 break;
@@ -286,7 +287,7 @@ public class HorizontalScroller extends LinearLayout {
                     Log.e("TEST","the up action "+initialVelocity +" "+mMinimumVeloctiy+" the tracker"+velocityTracker.getYVelocity(mActivePointerId)+" "+mActivePointerId);
                     if ((Math.abs(initialVelocity)> mMinimumVeloctiy)) { // indicate a fling
                         fling(-initialVelocity);
-                    } else if (mScroller.springBack(getScrollX(),getScrollY(),0,0,0,getScrollRangeX())){
+                    } else if (mScroller.springBack(mScrollX,mScrollY,0,0,0,getScrollRangeX())){
 //                        postInvalidateOnAnimation();
                     }
                     mActivePointerId = INVALID_ID;
@@ -340,8 +341,9 @@ public class HorizontalScroller extends LinearLayout {
         if (getChildCount() > 0) {
             int width = getWidth() - getPaddingRight() - getPaddingLeft();
             int bottom = getChildAt(0).getWidth();
+            Log.e("TEST","fling"+mScrollX+" "+mScrollY+" "+veloctiy+" " + (bottom-width)+"  "+width/2);
+            mScroller.fling(mScrollX,mScrollY,veloctiy,0,-1000,1000,0,10000);
 
-            mScroller.fling(getScrollX(),getScrollY(),veloctiy,0,0,0,0,Math.max(0,bottom-width),0,width/2);
 
             invalidate();
         }
@@ -350,13 +352,18 @@ public class HorizontalScroller extends LinearLayout {
     //TODO:!!!TODO:
     @Override
     protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY) {
-        super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
         if (!mScroller.isFinished()) {
-            final int oldX = getScrollX();
-            final int oldY = getScrollY();
+            final int oldX = mScrollX;
+            final int oldY = mScrollY;
+            mScrollX = scrollX;
+            mScrollY = scrollY;
             onScrollChanged(scrollX,scrollY,oldX,oldY);
 
+            if (clampedX) {
+                mScroller.springBack(mScrollX,mScrollY,0,0,getScrollRangeX(),0);
+            }
         } else {
+            Log.e("TEST","onOverScrolled "+scrollX+" "+scrollY);
             super.scrollTo(scrollX,scrollY);
         }
         awakenScrollBars();
@@ -371,20 +378,28 @@ public class HorizontalScroller extends LinearLayout {
     public void computeScroll() {
         if (mScroller.computeScrollOffset()) {
             Log.e("TEST","computeScrollOffset()");
-            int oldX = getScrollX();
-            int oldY = getScrollY();
+            int oldX = mScrollX;
+            int oldY = mScrollY;
             int x = mScroller.getCurrX();
             int y = mScroller.getCurrY();
-            if (oldX != x || oldY != y) {
+            Log.e("TEST"," oldX and oldY"+oldX+" "+oldY+" curr"+x+" "+y);
+            //TODO:这个还是最优的方法
+            scrollBy(x-oldX,y-oldY);
+            mScrollY = y;
+            mScrollX = x;
+            postInvalidate();
+
+
+            /**if (oldX != x || oldY != y) {
                 final int range = getScrollRangeX();
                 final int overscrollMode = getOverScrollMode();
                 //TODO:第二个判断条件是？
                 final boolean canOverscroll = overscrollMode == OVER_SCROLL_ALWAYS ||
                         (overscrollMode == OVER_SCROLL_IF_CONTENT_SCROLLS && range >0);
-                Log.e("TEST",(x-oldX)+" "+(y-oldY));
-                overScrollBy(x-oldX,y-oldY,oldX,oldY,0,range,0,mOverflingDistance,false);
+                Log.e("TEST","overScrollBy"+(x-oldX)+" "+(y-oldY));
+                overScrollBy(x-oldX,y-oldY,oldX,oldY,range,0,mOverflingDistance,0,false);
                 //TODO:?????
-                onScrollChanged(getScrollX(),getScrollY(),oldX,oldY);
+                onScrollChanged(mScrollX,mScrollY,oldX,oldY);
                 if (canOverscroll) {
                     if (y<0 && oldY >=0) {
                         mEdgeGlowLeft.onAbsorb((int)mScroller.getCurrVelocity());
@@ -392,8 +407,9 @@ public class HorizontalScroller extends LinearLayout {
                         mEdgeGlowRight.onAbsorb((int)mScroller.getCurrVelocity());
                     }
                 }
-                postInvalidate();
             }
+            postInvalidate();
+             **/
         }
     }
 

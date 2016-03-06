@@ -2,9 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="#FF00FF"/>
     <TextView
         android:layout_width="match_parent"
         android:id="@+id/text"
+        android:background="#00FFFF"
         android:layout_height="match_parent" />
 
 </LinearLayout>
